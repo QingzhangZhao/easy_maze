@@ -16,7 +16,7 @@ FK_NAME="jj.jpg"
 DOGE_1="doge1.png"
 DOGE_2="doge2.png"
 DOGE_3="doge3.png"
-os.system("scrot screen.jpg")
+os.system("scort screen.jpg")
 list = []
 class Game:
   def __init__(self, diff=0, path=1,rows=20,cols=50):

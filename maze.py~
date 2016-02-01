@@ -2,7 +2,6 @@ from random import shuffle
 """Contains the Maze class which is the array-represented maze."""
 
 class Maze:
-
   def __init__(self, rows=30, cols=40):
 
     self.rows = rows
@@ -43,7 +42,7 @@ class Maze:
         neighbor['visited'] = 1
         stack.append(neighbor)
         self.knock_wall(curr_cell, neighbor)
-
+        
         self.generate(start_cell, stack)
 
   def get_coords(self, cell):
@@ -60,7 +59,7 @@ class Maze:
     neighbors = []
 
     (x, y) = self.get_coords(cell)
-    if (x, y) == (-1, -1):
+    if x==-1 and y==-1:
       return neighbors
 
     north = (x, y-1)

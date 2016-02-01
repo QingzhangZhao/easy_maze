@@ -2,34 +2,67 @@
 from sys import argv
 import pygame
 from pygame.locals import *
-from maze import Maze
+import sys
+sys.setrecursionlimit(1500) # set the maximum depth as 1500
+import time
+from random import shuffle
+
+
+
+
+BACKGROUND_NAME= "bc.jpg" 
+
+FK_NAME="jj.jpg"
 
 class Game:
+  def __init__(self, diff=0, path=1,rows=20,cols=50):
+    
+    info = pygame.display.Info()
 
-  def __init__(self, diff, dim, path):
-    self.size = (800,600)
-    self.screen = pygame.display.set_mode(self.size)
-    pygame.display.set_caption('Maze Demo')
+    self.size = (info.current_w,info.current_h)
+    self.screen = pygame.display.set_mode(self.size,FULLSCREEN)
+    
+    self.fk = pygame.image.load(FK_NAME)
+    self.fk = pygame.transform.scale(self.fk,self.size)
+   # pygame.display.set_caption'') 
+    self.background = pygame.image.load(BACKGROUND_NAME)
+   ############
+    self.rows = rows
+    self.cols = cols
+    self.keep_going = 1
 
-    font = pygame.font.SysFont(pygame.font.get_default_font(), 55)
-    text = font.render("Loading...", 1, (255,255,255))
-    rect = text.get_rect()
-    rect.center = self.size[0]/2, self.size[1]/2
-    self.screen.blit(text, rect)
-    pygame.display.update(rect)
+    self.maze = {}
+    for y in xrange(rows):
+      for x in xrange(cols):
+        cell = {'south' : 1, 'east' : 1, 'visited': 0}
+        self.maze[(x,y)] = cell
+   ################
 
+   # font = pygame.font.SysFont(pygame.font.get_default_font(), 55)
+   # text = font.render("Loading...", 1, (255,255,255))
+   # rect = text.get_rect()
+   # rect.center = self.size[0]/2, self.size[1]/2
+   # self.screen.blit(text, rect)
+   # pygame.display.update(rect)
+     
+    self.screen.blit(self.fk,(0,0))
+    pygame.display.update()
+    time.sleep(3)
     self.diff = diff
-    self.dim = map(int, dim.split('x'))
     self.path = path
 
   def start(self):
-    self.maze_obj = Maze(*self.dim)# pass args to change maze size: Maze(10, 10)
+    #self.maze_obj = Maze(*self.dim)# pass args to change maze size: Maze(10, 10)
+    
     if self.diff == 0:
-      self.maze_obj.generate(self.maze_obj.maze[(0,0)])
+      self.draw_maze()
+      self.generate(self.maze[(0,0)])
     else:
-      self.maze_obj.generate()
+
+      self.generate()
     self.draw_maze()
     self.reset_player()
+   # time.sleep(3)
     self.loop()
 
   def reset_player(self):
@@ -43,24 +76,24 @@ class Game:
     self.blue_p = base.copy()
     self.goldy = base.copy()
     if self.path == 1:
-      r = (255,0,0)
-      g = (0,255,0)
+      r = (255,0,0) #red color
+      g = (0,255,0) #green color
     else:
       r = g = (255,255,255)
     b = (0,0,255)
     gold = (0xc5,0x93,0x48)
-    pygame.draw.ellipse(self.red_p, r, rect)
-    pygame.draw.ellipse(self.green_p, g, rect)
-    pygame.draw.ellipse(self.blue_p, b, rect)
-    pygame.draw.ellipse(self.goldy, gold, rect)
+    pygame.draw.ellipse(self.red_p, r, rect,0)
+    pygame.draw.ellipse(self.green_p, g, rect,0)
+    pygame.draw.ellipse(self.blue_p, b, rect,0)
+    pygame.draw.ellipse(self.goldy, gold, rect,0)
 
     # Make a same-size matrix for the player.
     self.player_maze = {}
-    for y in xrange(self.maze_obj.rows):
-      for x in xrange(self.maze_obj.cols):
+    for y in xrange(self.rows):
+      for x in xrange(self.cols):
         cell = {'visited' : 0} # if 1, draws green. if >= 2, draws red.
         self.player_maze[(x,y)] = cell
-        self.screen.blit(base, (x*self.cell_width+2, y*self.cell_height+2))
+        #self.screen.blit(base, (x*self.cell_width+2, y*self.cell_height+2))
 
     self.screen.blit(self.goldy, (x*self.cell_width+2, y*self.cell_height+2))
     self.cx = self.cy = 0
@@ -69,26 +102,31 @@ class Game:
     self.last_move = None # For last move fun
 
   def draw_maze(self):
-    self.screen.fill( (255,255,255) )
-    self.cell_width = self.size[0]/self.maze_obj.cols
-    self.cell_height = self.size[1]/self.maze_obj.rows
+    self.screen.blit(self.background,(0,0))
+    #self.screen.fill( (32,32,32) )
+    self.cell_width = self.size[0]/self.cols
+    self.cell_height = self.size[1]/self.rows
 
-    for y in xrange(self.maze_obj.rows):
-      for x in xrange(self.maze_obj.cols):
-        if self.maze_obj.maze[(x, y)]['south']: # draw south wall
-          pygame.draw.line(self.screen, (0,0,0), \
+    for y in xrange(self.rows):
+      for x in xrange(self.cols):
+        if self.maze[(x, y)]['south']: # draw south wall
+          pygame.draw.line(self.screen, (0,0,255), \
             (x*self.cell_width, y*self.cell_height + self.cell_height), \
             (x*self.cell_width + self.cell_width, \
-            y*self.cell_height + self.cell_height) )
-        if self.maze_obj.maze[(x, y)]['east']: # draw east wall
-          pygame.draw.line(self.screen, (0,0,0), \
+            y*self.cell_height + self.cell_height),)
+        else:
+            pygame.draw.rect(self.screen,(255,255,255),(x*self.cell_width+1,y*self.cell_height+1,self.cell_width-1,self.cell_height*2-1),0)
+        if self.maze[(x, y)]['east']: # draw east wall
+          pygame.draw.line(self.screen, (0,0,255), \
             (x*self.cell_width + self.cell_width, y*self.cell_height), \
             (x*self.cell_width + self.cell_width, y*self.cell_height + \
             self.cell_height) )
+        else:
+            pygame.draw.rect(self.screen,(255,255,255),(x*self.cell_width+1,y*self.cell_height+1,self.cell_width*2-1,self.cell_height-1),0)
+        
     # Screen border
     pygame.draw.rect(self.screen, (0,0,0), (0,0, self.size[0], self.size[1]), 1)
     pygame.display.update()
-
   def loop(self):
     self.clock = pygame.time.Clock()
     self.keep_going = 1
@@ -129,27 +167,26 @@ class Game:
 
       self.draw_player()
       pygame.display.update()
-
   def move_player(self, dir):
     no_move = 0
     try:
       if dir == 'u':
-        if not self.maze_obj.maze[(self.cx, self.cy-1)]['south']:
+        if not self.maze[(self.cx, self.cy-1)]['south']:
           self.cy -= 1
           self.curr_cell['visited'] += 1
         else: no_move = 1
       elif dir == 'd':
-        if not self.maze_obj.maze[(self.cx, self.cy)]['south']:
+        if not self.maze[(self.cx, self.cy)]['south']:
           self.cy += 1
           self.curr_cell['visited'] += 1
         else: no_move = 1
       elif dir == 'l':
-        if not self.maze_obj.maze[(self.cx-1, self.cy)]['east']:
+        if not self.maze[(self.cx-1, self.cy)]['east']:
           self.cx -= 1
           self.curr_cell['visited'] += 1
         else: no_move = 1
       elif dir == 'r':
-        if not self.maze_obj.maze[(self.cx, self.cy)]['east']:
+        if not self.maze[(self.cx, self.cy)]['east']:
           self.cx += 1
           self.curr_cell['visited'] += 1
         else: no_move = 1
@@ -172,13 +209,12 @@ class Game:
       self.curr_cell = self.player_maze[(self.cx, self.cy)]
 
     # Check for victory.
-    if self.cx + 1 == self.maze_obj.cols and self.cy + 1 == self.maze_obj.rows:
-      print 'Congratumalations, you beat this maze.'
+    if self.cx + 1 == self.cols and self.cy + 1 == self.rows:
       self.keep_going = 0
 
   def draw_player(self):
-    for y in xrange(self.maze_obj.rows):
-      for x in xrange(self.maze_obj.cols):
+    for y in xrange(self.rows):
+      for x in xrange(self.cols):
         if self.player_maze[(x,y)]['visited'] > 0:
           if self.player_maze[(x,y)]['visited'] == 1:
             circ = self.green_p
@@ -188,20 +224,103 @@ class Game:
           self.screen.blit(circ, (x*self.cell_width+2, y*self.cell_height+2))
     self.screen.blit(self.blue_p, (self.cx*self.cell_width+2, \
         self.cy*self.cell_height+2))
+  def generate(self, start_cell=None, stack=[]):
+    """Generates a random maze using a magical simple recursive function."""
 
+    if start_cell is None:
+      start_cell = self.maze[(self.cols-1, self.rows-1)]
+    
+    if not self.keep_going:
+      return
+
+    self.check_finished()
+    neighbors = []
+
+    # if the stack is empty, add the start cell
+    if len(stack) == 0:
+      stack.append(start_cell)
+
+    # set current cell to last cell
+    curr_cell = stack[-1]
+
+    # get neighbors and shuffle 'em up a bit
+    neighbors = self.get_neighbors(curr_cell)
+    shuffle(neighbors)
+
+    for neighbor in neighbors:
+      if neighbor['visited'] == 0:
+        neighbor['visited'] = 1
+        stack.append(neighbor)
+        self.knock_wall(curr_cell, neighbor)
+       
+        self.draw_maze()
+
+        self.generate(start_cell, stack)
+
+  def get_coords(self, cell):
+    # grabs coords of a given cell
+    coords = (-1, -1)
+    for k in self.maze:
+      if self.maze[k] is cell:
+        coords = (k[0], k[1])
+        break
+    return coords
+
+  def get_neighbors(self, cell):
+    # obvious
+    neighbors = []
+
+    (x, y) = self.get_coords(cell)
+    if x==-1 and y==-1:
+      return neighbors
+
+    north = (x, y-1)
+    south = (x, y+1)
+    east = (x+1, y)
+    west = (x-1, y)
+    
+    if north in self.maze:
+      neighbors.append(self.maze[north])
+    if south in self.maze:
+      neighbors.append(self.maze[south])
+    if east in self.maze:
+      neighbors.append(self.maze[east])
+    if west in self.maze:
+      neighbors.append(self.maze[west])
+
+    return neighbors
+
+  def knock_wall(self, cell, neighbor):
+    # knocks down wall between cell and neighbor.
+    xc, yc = self.get_coords(cell)
+    xn, yn = self.get_coords(neighbor)
+
+    # Which neighbor?
+    if xc == xn and yc == yn + 1:
+      # neighbor's above, knock out south wall of neighbor
+      neighbor['south'] = 0
+    elif xc == xn and yc == yn - 1:
+      # neighbor's below, knock out south wall of cell
+      cell['south'] = 0
+    elif xc == xn + 1 and yc == yn:
+      # neighbor's left, knock out east wall of neighbor
+      neighbor['east'] = 0
+    elif xc == xn - 1 and yc == yn:
+      # neighbor's right, knock down east wall of cell
+      cell['east'] = 0
+
+  def check_finished(self):
+    # Checks if we're done generating
+    done = 1
+    for k in self.maze:
+      if self.maze[k]['visited'] == 0:
+        done = 0
+        break
+    if done:
+      self.keep_going = 0
+def run():
+    pygame.init()
+    g=Game()
+    g.start()
 if __name__ == '__main__':
-  pygame.init()
-  args = argv[1:]
-  diff = 0
-  dim = '30x60'
-  path = 1
-  for arg in args:
-    if '--diff' in arg:
-      diff = int(arg.split('=')[-1])
-    elif '--dim' in arg:
-      dim = arg.split('=')[-1]
-    elif '--path' in arg:
-      path = int(arg.split('=')[-1])
-
-  g = Game(diff, dim, path)
-  g.start()
+    run()

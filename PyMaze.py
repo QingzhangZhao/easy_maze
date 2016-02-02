@@ -85,8 +85,7 @@ class Game:
       self.draw_maze()
       self.generate(self.maze[(0,0)])
     else:
-
-      self.generate()
+        self.generate()
     self.draw_maze()
     self.reset_player()
    # time.sleep(3)
@@ -97,6 +96,7 @@ class Game:
     w, h = self.cell_width - 3, self.cell_height - 3
     rect = 0, 0, w, h
     base = pygame.Surface((w,h))
+    base.fill((255,255,255))
     self.red_p = base.copy()
     self.green_p = base.copy()
     self.blue_p = base.copy()

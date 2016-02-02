@@ -85,10 +85,8 @@ class Game:
       self.draw_maze()
       self.generate(self.maze[(0,0)])
     else:
-
-      self.generate()
+        self.generate()
     self.draw_maze()
-    self.screen.fill(255,255,255)
     self.reset_player()
    # time.sleep(3)
     self.loop()

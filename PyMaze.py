@@ -11,11 +11,11 @@ from random import shuffle
 import os
 
 
-BACKGROUND_NAME= "screen.jpg" 
-FK_NAME="jj.jpg"
-DOGE_1="doge1.png"
-DOGE_2="doge2.png"
-DOGE_3="doge3.png"
+BACKGROUND_NAME= "pic/screen.jpg" 
+FK_NAME="pic/jj.jpg"
+DOGE_1="pic/doge1.png"
+DOGE_2="pic/doge2.png"
+DOGE_3="pic/doge3.png"
 os.system("scrot screen.jpg")
 list = []
 class Game:
@@ -56,7 +56,7 @@ class Game:
         doge_=pygame.transform.rotate(self.doge, random.random()*40)  
         self.screen.blit(doge_,list.pop()) 
         pygame.display.update()
-        time.sleep(0.00001*len(list)**2+0.03)
+        time.sleep(0.00001*len(list)**2+0.02)
    ###########
     time.sleep(2) 
    
@@ -66,15 +66,15 @@ class Game:
     time.sleep(3)
    ################
 
-    font = pygame.font.SysFont(pygame.font.get_default_font(), 155)
-    text = font.render("FBI WARNING", 1, (255,255,255))
-    rect = text.get_rect()
-    rect.center = self.size[0]/2, self.size[1]/2
-    self.screen.fill((0,0,0))
-    self.screen.blit(text, rect)
-    pygame.display.update(rect)
+    #font = pygame.font.SysFont(pygame.font.get_default_font(), 155)
+    #text = font.render("FBI WARNING", 1, (255,255,255))
+    #rect = text.get_rect()
+    #rect.center = self.size[0]/2, self.size[1]/2
+    #self.screen.fill((0,0,0))
+    #self.screen.blit(text, rect)
+    #pygame.display.update(rect)
      
-    time.sleep(3)
+    #time.sleep(3)
 
 
 
@@ -88,6 +88,7 @@ class Game:
 
       self.generate()
     self.draw_maze()
+    self.screen.fill(255,255,255)
     self.reset_player()
    # time.sleep(3)
     self.loop()
@@ -97,7 +98,6 @@ class Game:
     w, h = self.cell_width - 3, self.cell_height - 3
     rect = 0, 0, w, h
     base = pygame.Surface((w,h))
-    base.fill( (255,255,255) )
     self.red_p = base.copy()
     self.green_p = base.copy()
     self.blue_p = base.copy()

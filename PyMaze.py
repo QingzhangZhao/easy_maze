@@ -16,7 +16,7 @@ FK_NAME="pic/jj.jpg"
 DOGE_1="pic/doge1.png"
 DOGE_2="pic/doge2.png"
 DOGE_3="pic/doge3.png"
-os.system("scrot screen.jpg")
+os.system("scrot pic/screen.jpg")
 list = []
 class Game:
   def __init__(self, diff=0, path=1,rows=20,cols=50):
@@ -88,7 +88,6 @@ class Game:
 
       self.generate()
     self.draw_maze()
-    self.screen.fill(255,255,255)
     self.reset_player()
    # time.sleep(3)
     self.loop()
